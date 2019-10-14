@@ -1,19 +1,19 @@
 package com.lemairedev;
 
+import com.lemairedev.controller.RowdyController;
 import com.lemairedev.gui.GridFx;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Spinner;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
@@ -24,6 +24,7 @@ public class RowdyRacersApplication extends Application {
     private GridFx grid = new GridFx();
     private VBox root = new VBox();
     private HBox header = new HBox();
+    private RowdyController rowdyController;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -36,9 +37,10 @@ public class RowdyRacersApplication extends Application {
 
     @FXML
     private void startButtonClicked(ActionEvent event) throws FileNotFoundException {
-        Spinner<Integer> spinner = (Spinner<Integer>)stage.getScene().lookup("#gridSizeSpinner");
+        Spinner<Integer> spinner = (Spinner<Integer>) stage.getScene().lookup("#gridSizeSpinner");
         int gridSize = spinner.getValue();
-        grid.createGameGrid(this.grid,gridSize);
+        grid.createGameGrid(this.grid, gridSize);
+        rowdyController = new RowdyController(gridSize);
         grid.addCars();
         grid.addWalls();
 
@@ -47,11 +49,25 @@ public class RowdyRacersApplication extends Application {
         root.getChildren().add(header);
         root.getChildren().add(grid);
         root.setAlignment(Pos.CENTER);
-        root.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-        stage.setScene(new Scene(root));
+        Scene scene = new Scene(root);
+        scene.setOnKeyPressed(keyEvent -> {
+            switch (keyEvent.getCode()){
+                case UP:
+                    grid.moveBluePlayerTo(rowdyController.goUp());
+                    break;
+                case DOWN:
+                    grid.moveBluePlayerTo(rowdyController.goDown());
+                    break;
+                case LEFT:
+                    grid.moveBluePlayerTo(rowdyController.goLeft());
+                    break;
+                case RIGHT:
+                    grid.moveBluePlayerTo(rowdyController.goRight());
+                    break;
+            }
+        });
+        stage.setScene(scene);
     }
-
-
 
     private void showLauncher(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader();
